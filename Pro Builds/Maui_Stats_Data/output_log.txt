@@ -15,13 +15,13 @@ Platform assembly: C:\Users\Nick\Documents\GitHub\OrcaJam2014\Pro Builds\Maui_St
 Loading C:\Users\Nick\Documents\GitHub\OrcaJam2014\Pro Builds\Maui_Stats_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
 Platform assembly: C:\Users\Nick\Documents\GitHub\OrcaJam2014\Pro Builds\Maui_Stats_Data\Managed\Assembly-UnityScript-firstpass.dll (this message is harmless)
 Loading C:\Users\Nick\Documents\GitHub\OrcaJam2014\Pro Builds\Maui_Stats_Data\Managed\Assembly-UnityScript-firstpass.dll into Unity Child Domain
-- Completed reload, in  0.059 seconds
+- Completed reload, in  0.053 seconds
 desktop: 1600x900 40Hz; virtual: 1600x900 at 0,0
 <RI> Initializing input.
 <RI> Input initialized.
-HandleD3DDeviceLost
-  HandleD3DDeviceLost: needs reset, doing it
-FullResetD3DDevice
-ResetD3DDevice
-dev->Reset
-D3Dwindow device not lost anymore
+UnloadTime: 0.374965 ms
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+
+Unloading 3 unused Assets to reduce memory usage. Loaded Objects now: 160.
+Total: 0.574821 ms (FindLiveObjects: 0.011673 ms CreateObjectMapping: 0.007004 ms MarkObjects: 0.100862 ms  DeleteObjects: 0.007004 ms)
+
