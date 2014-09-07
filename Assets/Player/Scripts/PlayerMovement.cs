@@ -18,6 +18,8 @@ public class PlayerMovement : MonoBehaviour {
 	private int ID;
 	
 	private bool isGrounded = false;
+	private float jumpTime = 0.2f;
+	private float jumpTimer = 0.0f; // the amount of time force is applied for jumping
 	
 	private float soundDelay = 0.0f;
 
@@ -42,9 +44,13 @@ public class PlayerMovement : MonoBehaviour {
 		
 		if(soundDelay > 0.0f) soundDelay -= Time.deltaTime;
 		
-		if(rigidbody2D.velocity.magnitude > 0.1f && soundDelay <= 0.0f) {
+		if(isGrounded && rigidbody2D.velocity.magnitude > 0.1f && soundDelay <= 0.0f) {
 			audioSource.PlayOneShot (FootstepSounds[Random.Range(0,FootstepSounds.Length)]);
 			soundDelay = 0.2f;
+		}
+		
+		if(jumpTimer > 0.0f) {
+			jumpTimer -= Time.deltaTime;
 		}
 	}
 	
@@ -63,9 +69,15 @@ public class PlayerMovement : MonoBehaviour {
 		}
 		
 		// Jump
-		if(isGrounded && Input.GetButtonDown("P" + ID.ToString() + " A")) {
+		if(Input.GetButton("P" + ID.ToString() + " A") && (isGrounded || (!isGrounded && jumpTimer > 0.0f))) {
 			Debug.Log ("Jumping");
-			rigidbody2D.AddForce(transform.up * jumpSpeed);
+			
+			float jSpeedMod = jumpSpeed;
+			if(!isGrounded) jSpeedMod *= 0.3f;
+			rigidbody2D.AddForce(transform.up * jSpeedMod);
+			
+			
+			if(isGrounded) jumpTimer = jumpTime;
 			isGrounded = false;
 		}
 	}
