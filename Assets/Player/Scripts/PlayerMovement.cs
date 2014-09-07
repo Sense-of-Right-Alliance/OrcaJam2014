@@ -17,11 +17,16 @@ public class PlayerMovement : MonoBehaviour {
 	
 	private int ID;
 	
-	private bool isGrounded = false;
+	private bool isGrounded = true;
 	private float jumpTime = 0.2f;
 	private float jumpTimer = 0.0f; // the amount of time force is applied for jumping
 	
+	private float landTime = 0.6f;
+	private float landTimer = 0.0f;
+	
 	private float soundDelay = 0.0f;
+	
+	private bool isFalling = true;
 
 	// Use this for initialization
 	void Start () {
@@ -37,8 +42,22 @@ public class PlayerMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		HandleGamepadInput();
-		HandleKeyboardInput();
+		if(landTimer <= 0.0f) {
+			HandleGamepadInput();
+			HandleKeyboardInput();
+		}
+		
+		/*if(rigidbody2D.velocity.y <= 0) isFalling = true;
+		else {
+			isFalling = false;
+			if(!isGrounded && rigidbody2D.velocity.y == 0) {
+				isGrounded = true;
+				animator.SetBool ("Jump", false);
+				animator.SetBool("Land",true);
+				
+				landTimer = landTime;
+			}
+		}*/
 		
 		animator.SetFloat("Speed", rigidbody2D.velocity.magnitude);
 		
@@ -51,6 +70,11 @@ public class PlayerMovement : MonoBehaviour {
 		
 		if(jumpTimer > 0.0f) {
 			jumpTimer -= Time.deltaTime;
+		}
+		
+		if(landTimer > 0.0f) {
+			landTimer -= Time.deltaTime;
+			animator.SetBool ("Land", false);
 		}
 	}
 	
@@ -77,7 +101,10 @@ public class PlayerMovement : MonoBehaviour {
 			rigidbody2D.AddForce(transform.up * jSpeedMod);
 			
 			
-			if(isGrounded) jumpTimer = jumpTime;
+			if(isGrounded) { // start of jump
+				jumpTimer = jumpTime;
+				animator.SetBool("Jump", true);
+			}
 			isGrounded = false;
 		}
 	}
@@ -103,8 +130,21 @@ public class PlayerMovement : MonoBehaviour {
 
 			
 	void OnCollisionEnter2D(Collision2D collision) {
-		if(collision.gameObject.tag == "Floor") {
-			isGrounded = true;
+		
+		if(collision.gameObject.tag == "Floor" && !isGrounded) {
+		
+			var relativePosition = transform.InverseTransformPoint(collision.contacts[0].point);
+			
+			if (relativePosition.y < 0) {
+				
+				Debug.Log("The object is below.");
+				isGrounded = true;
+				animator.SetBool ("Jump", false);
+				animator.SetBool("Land",true);
+				
+				landTimer = landTime;
+				
+			} 
 		}
 	}
 }

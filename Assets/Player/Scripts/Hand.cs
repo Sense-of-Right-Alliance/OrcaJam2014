@@ -83,8 +83,8 @@ public class Hand : MonoBehaviour {
 			Debug.Log("Object Broken");
 			
 			hitDelay = 0.2f;
-			
-			hitObj.GetComponent<BreakableGen>().HandlePunch(gameObject, playerMovement.direction);
+
+            hitObj.GetComponent<Breakable>().HandleBreakage(playerMovement.direction);
 		} else if(hitObj.tag == "Player" && hitObj.GetComponent<PlayerData>().ID != ID) {
 			Debug.Log("Player Hit");
 			
