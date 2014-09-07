@@ -39,7 +39,7 @@ public class Hand : MonoBehaviour {
 					Debug.Log("Object Broken");
 					GameObject obj = hitColliders[i].gameObject;
 					
-					obj.GetComponent<Breakable>().HandlePunch(gameObject, playerMovement.direction);
+					obj.GetComponent<BreakableGen>().HandlePunch(gameObject, playerMovement.direction);
 				} else if(hitColliders[i].tag == "Player" && hitColliders[i].gameObject.GetComponent<PlayerData>().ID != ID) {
 					Debug.Log("Player Hit");
 					GameObject obj = hitColliders[i].gameObject;
