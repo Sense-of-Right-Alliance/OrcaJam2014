@@ -6,11 +6,11 @@ using System.Text;
 
 public class EarthquakeController : MonoBehaviour
 {
-    public float durationInactive = 10.0f;
+    public float durationInactive = 5.0f;
     public float durationPreEarthquake = 2.0f;
     public float durationMainEarthquakeInitial = 2.0f;
-    public float durationMainEarthquakeIncrement = 0.5f;
-    public float stalactiteGenerationInterval = 0.5f;
+    public float durationMainEarthquakeIncrement = 1f;
+    public float stalactiteGenerationInterval = 1f;
 
     public enum EarthquakeState
     {
