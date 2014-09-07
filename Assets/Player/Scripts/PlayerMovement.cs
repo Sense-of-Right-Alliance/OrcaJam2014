@@ -7,20 +7,26 @@ public class PlayerMovement : MonoBehaviour {
 	public float jumpSpeed = 50000.0f;
 	
 	public Vector2 direction;
+	
+	public AudioClip[] FootstepSounds;
 
 	private Rigidbody2D rigidbody2D;
 	private PlayerData playerData;
 	private Animator animator;
+	private AudioSource audioSource;
 	
 	private int ID;
 	
 	private bool isGrounded = false;
+	
+	private float soundDelay = 0.0f;
 
 	// Use this for initialization
 	void Start () {
 		rigidbody2D = GetComponent<Rigidbody2D>();
 		playerData = GetComponent<PlayerData>();
 		animator = GetComponent<Animator>();
+		audioSource = Camera.main.GetComponent<AudioSource>();
 		
 		ID = playerData.ID;
 		
@@ -33,6 +39,13 @@ public class PlayerMovement : MonoBehaviour {
 		HandleKeyboardInput();
 		
 		animator.SetFloat("Speed", rigidbody2D.velocity.magnitude);
+		
+		if(soundDelay > 0.0f) soundDelay -= Time.deltaTime;
+		
+		if(rigidbody2D.velocity.magnitude > 0.1f && soundDelay <= 0.0f) {
+			audioSource.PlayOneShot (FootstepSounds[Random.Range(0,FootstepSounds.Length)]);
+			soundDelay = 0.2f;
+		}
 	}
 	
 	void HandleGamepadInput() {
@@ -41,7 +54,8 @@ public class PlayerMovement : MonoBehaviour {
 		//float vert = Input.GetAxis ("P" + ID.ToString() + " Left Stick Vertical");		// dont' really care about this... FOR NOW!
 		
 		rigidbody2D.AddForce(transform.right * moveSpeed * horz); // Move with force to left
-		direction = (transform.right * horz).normalized; // Set facing direction to left
+		
+		if(horz != 0.0f) direction = (transform.right * horz).normalized; // Set facing direction to left
 		
 		// set animation direction
 		if((horz < 0 && transform.localScale.x < 0) || (horz > 0 && transform.localScale.x > 0)) {

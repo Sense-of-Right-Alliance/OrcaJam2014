@@ -8,20 +8,38 @@ public class Collector : MonoBehaviour {
 	public Transform StartingCollectablePosition;
 
 	public List<GameObject> collectedObjects = new List<GameObject>();
+	
+	public AudioClip CollectSound;
+	public AudioClip DropSound;
+	
+	private GameObject scoreObject;
+	private AudioSource audioSource;
 
 	// Use this for initialization
 	void Start () {
+		scoreObject = transform.FindChild("Score").gameObject;
+		
+		scoreObject.GetComponent<ScoreDisplay>().UpdateDisplay(0);
+		
+		audioSource = Camera.main.GetComponent<AudioSource>();
 	}
 	
 	public void Collect(GameObject obj) {
+		
 		Collectable collectable = obj.GetComponent<Collectable>();
 		collectable.StackTo(GetNextCollectablePosition(), gameObject);
 		
-		collectedObjects.Add (obj);
+		audioSource.PlayOneShot (CollectSound);
 	}
 	
 	// called after an object is set on the head
-	public void HandleCollected() {
+	public void HandleCollected(GameObject obj) {
+		obj.collider2D.enabled = false;
+		obj.renderer.enabled = false;
+		collectedObjects.Add (obj);
+		scoreObject.GetComponent<ScoreDisplay>().UpdateDisplay(collectedObjects.Count);
+		
+	
 		int collectedCount = 0;
 		for(int i = 0; i < collectedObjects.Count; i++) {
 			if(collectedObjects[i].GetComponent<Collectable>().collected) collectedCount += 1;
@@ -36,9 +54,15 @@ public class Collector : MonoBehaviour {
 		if(collectedObjects.Count > 0) {
 			GameObject topObject = collectedObjects[collectedObjects.Count-1];
 			
+			topObject.collider2D.enabled = true;
+			topObject.renderer.enabled = true;
+			
 			topObject.GetComponent<Collectable>().BreakOff (direction);
 			
 			collectedObjects.Remove (topObject);
+			scoreObject.GetComponent<ScoreDisplay>().UpdateDisplay(collectedObjects.Count);
+			
+			audioSource.PlayOneShot (DropSound);
 		}
 	}
 	

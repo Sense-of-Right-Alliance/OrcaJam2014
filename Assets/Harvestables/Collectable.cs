@@ -49,7 +49,7 @@ public class Collectable : MonoBehaviour {
 		// Calc horizontal offset
 		Vector2 randomOffset = transform.right * Random.value * 200.0f;
 		if(Random.value < 0.5f) randomOffset *= -1;
-		float verticalPower = 25.0f * (Random.value * 10.0f);
+		float verticalPower = 10.0f * (Random.value * 5.0f);
 		
 		Vector2 force = new Vector2(transform.up.x, transform.up.y) * verticalPower + direction * 10.0f;// randomOffset;
 		rigidbody2D.AddForce(force);
@@ -93,7 +93,7 @@ public class Collectable : MonoBehaviour {
 			collecting = false;
 			collected = true;
 			
-			collectingPlayer.GetComponent<Collector>().HandleCollected();
+			collectingPlayer.GetComponent<Collector>().HandleCollected(gameObject);
 		}
 	}
 	

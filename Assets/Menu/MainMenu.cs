@@ -17,13 +17,10 @@ public class MainMenu : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		if(Input.GetButtonDown ("P1 A")) Application.LoadLevel("Game");
 	}
 	
 	void OnGUI() {
-		GUI.Label (titleRect, "Quarry Quandry", titleStyle);
-	
-	
 		if(GUI.Button(startButtonRect, "Start")) {
 			Application.LoadLevel("Game");
 		}

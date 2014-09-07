@@ -3,12 +3,10 @@ using System.Collections;
 
 public class BreakableGen : MonoBehaviour {
 
-	public GameObject PiecePrefab;
-
-	public Texture2D[] BrokenStateTextures;
-	public Texture2D[] PieceTextures;
+	public GameObject[] BrokenStateObjectPrefabs;
+	public GameObject[] PieceObjects;
 	
-	private int hitCount = 0;
+	public int hitCount = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -16,18 +14,28 @@ public class BreakableGen : MonoBehaviour {
 	}
 	
 	public void HandlePunch(GameObject player, Vector2 direction) {
-		if(hitCount < BrokenStateTextures.Length) {
-			
+		if(hitCount < PieceObjects.Length) {
 			
 			Vector3 piecePos = transform.position;
-			piecePos.y += 2.0f - (BrokenStateTextures.Length - hitCount);
-			GameObject piece = (GameObject)Instantiate(PiecePrefab, piecePos, Quaternion.identity);
-			piece.renderer.material.mainTexture = PieceTextures[hitCount];
+			piecePos.y += 2.0f - hitCount;
+			GameObject piece = (GameObject)Instantiate(PieceObjects[hitCount], piecePos, Quaternion.identity);
 			piece.GetComponent<Collectable>().BreakOff(direction);
 			
-			renderer.material.mainTexture = BrokenStateTextures[hitCount];
+			GameObject newStatue = (GameObject)Instantiate(BrokenStateObjectPrefabs[hitCount], transform.position, transform.rotation);
+			float offset = 0.0f;
+			if(hitCount == 0) offset -= 0.375f;
+			if(hitCount == 1) offset -= 0.283f;
+			Vector3 pos = newStatue.transform.position;
+			pos.y += offset;
 			
-			hitCount += 1;
+			newStatue.transform.position = pos;
+			
+			newStatue.GetComponent<BreakableGen>().hitCount = hitCount+1;
+			
+			Destroy(gameObject);
+			//renderer.material.mainTexture = PieceTextures[hitCount];
+			
+			//hitCount += 1;
 		}
 		
 		
