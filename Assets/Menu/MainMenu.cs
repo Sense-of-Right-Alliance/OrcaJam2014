@@ -21,7 +21,7 @@ public class MainMenu : MonoBehaviour {
 	}
 	
 	void OnGUI() {
-		GUI.Label (titleRect, "Earth Elemz: Teh Gamez", titleStyle);
+		GUI.Label (titleRect, "Quarry Quandry", titleStyle);
 	
 	
 		if(GUI.Button(startButtonRect, "Start")) {
