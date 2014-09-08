@@ -40,16 +40,24 @@ public class Collectable : MonoBehaviour {
 		Vector2 pDir = collectingPlayer.GetComponent<PlayerMovement>().direction;
 		Vector3 dir = new Vector3(pDir.x, pDir.y, 0);
 		velocity = ((dir * 0.5f) + collectingPlayer.transform.up).normalized * maxSpeed;
+		
+		FinishStackTo();
 	}
 	
 	public void BreakOff(Vector2 direction) {
+		transform.parent = null; // remove parent
+		
+		Vector3 pos = transform.position;
+		pos.y += 0.5f;
+		transform.position = pos;
+		
 		// Launch the piece
 		GetComponent<BoxCollider2D>().isTrigger = false;
 		rigidbody2D.isKinematic = false;
 		// Calc horizontal offset
 		Vector2 randomOffset = transform.right * Random.value * 200.0f;
 		if(Random.value < 0.5f) randomOffset *= -1;
-		float verticalPower = 10.0f * (Random.value * 5.0f);
+		float verticalPower = 60.0f * (Random.value * 5.0f);
 		
 		Vector2 force = new Vector2(transform.up.x, transform.up.y) * verticalPower + direction * 10.0f;// randomOffset;
 		rigidbody2D.AddForce(force);
@@ -87,14 +95,18 @@ public class Collectable : MonoBehaviour {
 		transform.position += velocity * Time.deltaTime;
 		
 		if((targetPosition - transform.position).magnitude <= 0.05f) {
-			transform.position = targetPosition;
-			
-			collectingPlayer.GetComponent<PlayerMovement>().enabled = true;
-			collecting = false;
-			collected = true;
-			
-			collectingPlayer.GetComponent<Collector>().HandleCollected(gameObject);
+			FinishStackTo();
 		}
+	}
+	
+	void FinishStackTo() {
+		transform.position = targetPosition;
+		
+		collectingPlayer.GetComponent<PlayerMovement>().enabled = true;
+		collecting = false;
+		collected = true;
+		
+		collectingPlayer.GetComponent<Collector>().HandleCollected(gameObject);
 	}
 	
 	void OnCollisionEnter2D(Collision2D collision) {

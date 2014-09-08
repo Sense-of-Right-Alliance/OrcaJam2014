@@ -21,7 +21,7 @@ public class PlayerMovement : MonoBehaviour {
 	private float jumpTime = 0.2f;
 	private float jumpTimer = 0.0f; // the amount of time force is applied for jumping
 	
-	private float landTime = 0.6f;
+	private float landTime = 0.3f;
 	private float landTimer = 0.0f;
 	
 	private float soundDelay = 0.0f;

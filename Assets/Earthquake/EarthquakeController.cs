@@ -84,18 +84,22 @@ public class EarthquakeController : MonoBehaviour
 
     void StartPreEarthquakeEvent()
     {
+    	Debug.Log ("Earthquake Pre");
         state = EarthquakeState.PreEarthquake;
         // play sound TODO
         // gently shake screen TODO
-
+		Camera.main.GetComponent<CameraShake>().ShakeWarmup();
+		
         timeRemainingPreEarthquake = durationPreEarthquake;
     }
 
     void StartMainEarthquakeEvent()
     {
+		Debug.Log ("Earthquake Full");
         state = EarthquakeState.MainEarthquake;
         // start sound loop TODO
         // violently shake screen TODO
+		Camera.main.GetComponent<CameraShake>().ShakeFull();
 
         timeRemainingMainEarthquake = durationMainEarthquakeCurrent;
         durationMainEarthquakeCurrent += durationMainEarthquakeIncrement; // increase duration of the next earthquake
@@ -103,8 +107,10 @@ public class EarthquakeController : MonoBehaviour
 
     void EndEarthquakeEvent()
     {
+		Debug.Log ("Earthquake Off");
         state = EarthquakeState.Inactive;
         // end sound loop TODO
+		Camera.main.GetComponent<CameraShake>().ShakeOff();
 
         timeRemainingInactive = durationInactive;
     }

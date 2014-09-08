@@ -10,6 +10,9 @@ public class Hand : MonoBehaviour {
 	
 	public AudioClip[] HitSounds;
 	public AudioClip[] PokeSounds;
+	
+	public GameObject ArrowFab;
+	public GameObject StalactiteBreakEffect;
 
 	private PlayerMovement playerMovement;
 	private PlayerData playerData;
@@ -21,82 +24,60 @@ public class Hand : MonoBehaviour {
 	private bool canPunch = false;
 	private float cooldownTimer = 0.0f;
 	
-	private float hitDelay = 0.3f;
-	private bool hitBuffered = false;
-	private GameObject hitObj;
+	private string hitType = "";
+	
+	//private float hitDelay = 0.3f;
+	//private bool hitBuffered = false;
+	//private GameObject hitObj;
+	
+	private float hitThreshold = 0.0f;
 
 	// Use this for initialization
 	void Start () {
-		playerMovement = GetComponent<PlayerMovement>();
-		playerData = GetComponent<PlayerData>();
-		animator = GetComponent<Animator>();
+		playerMovement = transform.parent.gameObject.GetComponent<PlayerMovement>();
+		playerData = transform.parent.gameObject.GetComponent<PlayerData>();
+		animator = transform.parent.gameObject.GetComponent<Animator>();
 		audioSource = Camera.main.GetComponent<AudioSource>();
 		
 		ID = playerData.ID;
+		
+		GetComponent<BoxCollider2D>().enabled = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		HandleCooldown();
 		
-		if(hitDelay > 0.0f) hitDelay -= Time.deltaTime;
-		if(hitDelay <= 0.0f && hitBuffered) MakeHit();
+		//if(hitDelay > 0.0f) hitDelay -= Time.deltaTime;
+		//if(hitDelay <= 0.0f && hitBuffered) MakeHit();
+		
+		if(hitThreshold > 0.0f) hitThreshold -= Time.deltaTime;
+		else GetComponent<BoxCollider2D>().enabled = false;
 	
-		if(canPunch && Input.GetKeyDown (KeyCode.Space) || Input.GetButtonDown("P" + ID.ToString() + " B")) {
-			canPunch = false;
-			cooldownTimer = COOLDOWN;
-			
-			Vector2 center = new Vector2(transform.position.x, transform.position.y) + playerMovement.direction * reach;
-			Vector3 actualCenter = new Vector3(center.x, center.y, -10);
-			Collider2D[] hitColliders = Physics2D.OverlapCircleAll(center,radius);
-			for(int i = 0; i < hitColliders.Length; i++) {
-				if(hitColliders[i].tag == "Breakable") {
-					Debug.Log("Object Broken");
-					hitObj = hitColliders[i].gameObject;
-					
-					hitDelay = 0.2f;
-					hitBuffered = true;
-					
-					//obj.GetComponent<BreakableGen>().HandlePunch(gameObject, playerMovement.direction);
-				} else if(hitColliders[i].tag == "Player" && hitColliders[i].gameObject.GetComponent<PlayerData>().ID != ID) {
-					Debug.Log("Player Hit");
-					hitObj = hitColliders[i].gameObject;
-					
-					hitDelay = 0.2f;
-					hitBuffered = true;
-					
-					//Collector collector = obj.GetComponent<Collector>();
-					//collector.KnockOffBlock(playerMovement.direction);
-				}
+		if(canPunch) {
+			if(Input.GetKeyDown (KeyCode.Space) || Input.GetButtonDown("P" + ID.ToString() + " B")) {
+				canPunch = false;
+				cooldownTimer = COOLDOWN;
+				
+				MakeHit("Straight");
+				
+				audioSource.PlayOneShot (PokeSounds[Random.Range(0,PokeSounds.Length)]);
+				animator.SetTrigger ("Poke");
+			} else if(Input.GetButtonDown("P" + ID.ToString() + " Y")) { 	// Lob
+				MakeHit("Lob");
+			} else if(Input.GetButtonDown("P" + ID.ToString() + " X")) {	// Downward Shots
+				MakeHit("Down");
 			}
-			
-			audioSource.PlayOneShot (PokeSounds[Random.Range(0,PokeSounds.Length)]);
-			animator.SetTrigger ("Poke");
 		}
 		
 		Debug.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y, -10) + new Vector3(playerMovement.direction.x, playerMovement.direction.y,0) * reach);
 	}
 	
 	// Called after delay from key stroke to sync up with animation
-	void MakeHit() {
-		if(hitObj.tag == "Breakable") {
-			Debug.Log("Object Broken");
-			
-			hitDelay = 0.2f;
-
-            hitObj.GetComponent<Breakable>().HandleBreakage(playerMovement.direction);
-		} else if(hitObj.tag == "Player" && hitObj.GetComponent<PlayerData>().ID != ID) {
-			Debug.Log("Player Hit");
-			
-			hitDelay = 0.2f;
-			
-			Collector collector = hitObj.GetComponent<Collector>();
-			collector.KnockOffBlock(playerMovement.direction);
-		}
-		
-		audioSource.PlayOneShot (HitSounds[Random.Range(0,HitSounds.Length)]);
-		
-		hitBuffered = false;
+	void MakeHit(string type) {
+		GetComponent<BoxCollider2D>().enabled = true;
+		hitThreshold = 0.1f;
+		hitType = type;
 	}
 	
 	void HandleCooldown() {
@@ -104,5 +85,81 @@ public class Hand : MonoBehaviour {
 			cooldownTimer -= Time.deltaTime;
 			if(cooldownTimer <= 0.0f) canPunch = true;
 		}
+	}
+	
+	Vector3 GetTrajectory() {
+		switch(hitType) {
+			case "Down":
+				return new Vector3(0.0f,-1.0f,0.0f) * 1000.0f;
+				break;
+			case "Lob":
+				return ((Vector3)playerMovement.direction + new Vector3(0.0f, 1.0f, 0.0f)).normalized * 500.0f;
+				break;
+			case "Straight": 
+			default:
+				return (Vector3)playerMovement.direction * 2500.0f;
+				break;
+		}
+	}
+	
+	Vector3 GetArrowOffset() {
+		switch(hitType) {
+			case "Down":
+				return new Vector3(0.0f,-1.0f,0.0f) * 0.5f;
+				break;
+			case "Lob":
+				return ((Vector3)playerMovement.direction + new Vector3(0.0f, 1.0f, 0.0f)).normalized * 0.5f;
+				break;
+			case "Straight": 
+			default:
+				return (Vector3)playerMovement.direction * 0.5f;
+				break;
+		}
+	}
+
+	void OnTriggerEnter2D(Collider2D collision) {
+		//if(hitThreshold > 0.0f) {
+			if(collision.gameObject.tag == "Breakable") {
+				Debug.Log("Object Broken");
+				
+				if(collision.gameObject.GetComponent<Breakable>() != null) 
+					collision.gameObject.GetComponent<Breakable>().HandleBreakage(playerMovement.direction);
+				
+				audioSource.PlayOneShot (HitSounds[Random.Range(0,HitSounds.Length)]);
+				
+				hitThreshold = 0.0f; 
+			} else if(false && collision.gameObject.tag == "Player" && collision.gameObject.GetComponent<PlayerData>().ID != ID) {
+				Debug.Log("Player Hit");
+				
+				Collector collector = collision.gameObject.GetComponent<Collector>();
+				collector.KnockOffBlock(playerMovement.direction);
+				
+				audioSource.PlayOneShot (HitSounds[Random.Range(0,HitSounds.Length)]);
+				
+				hitThreshold = 0.0f;
+			} else if(collision.gameObject.tag == "Stalactite") {
+				Debug.Log("Stalactite Poked");
+				//Debug.Log ("ArrowPrefab = " + ArrowFab + " playerMovement = " + playerMovement);
+					
+				GameObject arrow = (GameObject)Instantiate(ArrowFab, transform.parent.FindChild("Hand").position + GetArrowOffset(), transform.rotation);
+				
+				Instantiate(StalactiteBreakEffect, transform.position, transform.rotation);
+				
+				if(playerMovement.direction.x > 0.0f) {
+					Vector3 scale = arrow.transform.localScale;
+					scale.x *= -1.0f;
+					
+					arrow.transform.localScale = scale;
+				}
+				
+				Destroy(collision.gameObject);
+				arrow.rigidbody2D.AddForce (GetTrajectory());
+
+				audioSource.PlayOneShot (HitSounds[Random.Range(0,HitSounds.Length)]);
+				
+			}
+			
+			
+		//}
 	}
 }

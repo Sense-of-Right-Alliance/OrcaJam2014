@@ -59,31 +59,48 @@ public class StalactiteController : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D coll)
     {
+    	Debug.Log ("Stalactite Hit Tag = " + coll.collider.gameObject.tag + " State = " + state);
         switch (coll.collider.gameObject.tag)
         {
             case "Floor":
                 if (state == StalactiteState.Falling)
                 {
                     //LayToRest();
-                    Explode(coll.contacts.First().point);
+                    Debug.Log ("Stalactite hit Floor");
+					gameObject.layer =  LayerMask.NameToLayer("StuckStalactite");
+                    //Explode(transform.position);//coll.contacts.First().point);
                 }
                 break;
 
             case "Breakable":
                 if (state == StalactiteState.Falling)
+					Debug.Log ("Stalactite hit Breakable");
                     LandOnStatue(coll.gameObject.GetComponent<Breakable>(), coll.contacts.First().point);
                 break;
 
             case "Collectable":
                 if (state == StalactiteState.Falling)
-                    LandOnStatuePiece(coll.gameObject.GetComponent<Collectable>(), coll.contacts.First().point);
+					Debug.Log ("Stalactite hit Collectable");
+                    //LandOnStatuePiece(coll.gameObject.GetComponent<Collectable>(), coll.contacts.First().point);
+					Explode(coll.contacts.First().point);
                 break;
 
             case "Head":
                 if (state == StalactiteState.Falling || state == StalactiteState.Detaching)
+					Debug.Log ("Stalactite hit Head");
                     LandOnPlayer(coll.gameObject.GetComponent<Collector>(), coll.contacts.First().point);
                 break;
         }
+    }
+    
+    void OnCollisionExit2D(Collision2D other) {
+		switch (other.gameObject.tag)
+		{
+		case "Ceiling":
+			if (state == StalactiteState.Detaching)
+				CompleteDetach();
+			break;
+		}
     }
 
     void OnTriggerExit2D(Collider2D other)
