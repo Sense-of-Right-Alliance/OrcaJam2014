@@ -1,17 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerData : MonoBehaviour {
-
-	public int ID = -1; // 1 - 4
+public class PlayerData : MonoBehaviour
+{
+    public int ID;
 	
-
 	// Use this for initialization
 	void Start () {
 	
 	}
 	
-	public void Initialize(int id, Vector2 startPosition) {
+	public void Initialize(short id, Vector2 startPosition) {
 		ID = id;
 	}
 	

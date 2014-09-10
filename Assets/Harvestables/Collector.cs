@@ -13,7 +13,9 @@ public class Collector : MonoBehaviour {
 	public AudioClip DropSound;
 	
 	public Texture2D[] FaceTextures;
-	
+
+    private GameData gameData;
+    private PlayerData playerData;
 	public GameObject DeadPlayer;
 	
 	private GameObject scoreObject;
@@ -26,10 +28,11 @@ public class Collector : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		scoreObject = transform.FindChild("Score").gameObject;
-		
 		scoreObject.GetComponent<ScoreDisplay>().UpdateDisplay(0);
-		
 		audioSource = Camera.main.GetComponent<AudioSource>();
+
+        playerData = GetComponent<PlayerData>();
+        gameData = GameObject.Find("Game Data").GetComponent<GameData>();
 	}
 	
 	public void Collect(GameObject obj) {
@@ -56,7 +59,9 @@ public class Collector : MonoBehaviour {
 			if(collectedObjects[i].GetComponent<Collectable>().collected) collectedCount += 1;
 		}
 		
-		if(collectedCount >= 5) {
+		if(collectedCount >= 5)
+        {
+            gameData.winningPlayerID = playerData.ID;
 			Application.LoadLevel("End");
 		}
 	}
@@ -68,19 +73,26 @@ public class Collector : MonoBehaviour {
 			topObject.collider2D.enabled = true;
 			topObject.renderer.enabled = true;
 			
+			Vector3 pos = topObject.transform.position;
+			pos.y += 0.5f;
+			topObject.transform.position = pos;
 			topObject.GetComponent<Collectable>().BreakOff (direction);
 			
 			collectedObjects.Remove (topObject);
 			scoreObject.GetComponent<ScoreDisplay>().UpdateDisplay(collectedObjects.Count);
 			
 			audioSource.PlayOneShot (DropSound);
+		} else {
+            var deadPlayer = (GameObject)Instantiate(DeadPlayer, transform.position, transform.rotation);
+            var deadPlayerScript = deadPlayer.GetComponent<DeadPlayer>();
+            deadPlayerScript.SetTexture(playerData.ID);
+			
+			Destroy(gameObject);
 		}
 	}
 	
 	public void TakeHit(GameObject obj) {
 		if(!isDead) {
-			CheckDead(-obj.transform.up);
-			
 			KnockOffBlock(-obj.transform.up);
 			
 			transform.FindChild ("Head").GetComponent<Renderer>().material.mainTexture = FaceTextures[1];
@@ -92,8 +104,6 @@ public class Collector : MonoBehaviour {
 	
 	public void TakeHitDir(Vector2 dir) {
 		if(!isDead) {
-			CheckDead(dir);
-			
 			KnockOffBlock(dir);
 			
 			transform.FindChild ("Head").GetComponent<Renderer>().material.mainTexture = FaceTextures[1];
@@ -103,7 +113,9 @@ public class Collector : MonoBehaviour {
 	
 	void CheckDead(Vector2 dir) {
 		if(collectedObjects.Count == 0) {
-			Instantiate(DeadPlayer, transform.position, transform.rotation);
+            var deadPlayer = (GameObject)Instantiate(DeadPlayer, transform.position, transform.rotation);
+            var deadPlayerScript = deadPlayer.GetComponent<DeadPlayer>();
+            deadPlayerScript.SetTexture(playerData.ID);
 			
 			Destroy(gameObject);
 		}

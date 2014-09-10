@@ -3,7 +3,7 @@ using System.Collections;
 
 public class CameraShake : MonoBehaviour {
 
-	private Quaternion defaultRotation;
+    //private Quaternion defaultRotation;
 	
 	Vector3 originPosition;
 	Vector3 positionOffset;
